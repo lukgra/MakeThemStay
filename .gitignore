@@ -1,6 +1,7 @@
-tests/
 model/data/
+model/.ipynb_checkpoints/
 venv/
+docs/
 
 
 
