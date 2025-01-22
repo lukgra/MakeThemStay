@@ -16,13 +16,13 @@ MODEL = Model()
 EMPLOYEE_DATA = [
     {   
         'id': '0001',
-        'leave_chance': 39,
+        'leave_chance': 38,
         'name': 'Tony PGE',
         'features': {
-            'Age': 12,
+            'Age': 33,
             'Company Reputation': 'Good',
             'Company Size': 'Large',
-            'Company Tenur': 1,
+            'Company Tenure': 1,
             'Distance from Home': 10,
             'Education Level': 'Bachelor’s Degree',
             'Employee Recognition': 'Medium',
@@ -42,6 +42,13 @@ EMPLOYEE_DATA = [
             'Work-Life Balance': 'Below Average',
             'Years at Company': 3
         },
+        'exp_features': [
+            'Remote Work',
+            'Years at Company',
+            'Company Tenure',
+            'Overtime',
+            'Number of Dependents'
+        ]
     }
 ]
 
@@ -67,25 +74,27 @@ def get_employee(id: str):
 def add_employee():
     data: dict = request.json['features']
 
-    if 'id' not in data:
-        new_employee: dict = {
-            'id': __gen_id(),
-            'name': data.pop('Name'),
-            'features': data,
-            'leave_chance': MODEL.predict(data)
-        }
-        EMPLOYEE_DATA.append(new_employee)
-    else:
+    prediction, exp_features = MODEL.predict(data)
+
+    if 'id' in data:
         for i, _ in enumerate(EMPLOYEE_DATA):
             if EMPLOYEE_DATA[i]['id'] == data['id']:
-                modified_employee: dict = {
+                EMPLOYEE_DATA[i] = {
                     'id': data.pop('id'),
                     'name': data.pop('Name'),
                     'features': data,
-                    'leave_chance': MODEL.predict(data)
+                    'leave_chance': prediction,
+                    'exp_features': exp_features
                 }
-                EMPLOYEE_DATA[i] = modified_employee
                 break
+    else:
+        EMPLOYEE_DATA.append({
+            'id': __gen_id(),
+            'name': data.pop('Name'),
+            'features': data,
+            'leave_chance': prediction,
+            'exp_features': exp_features
+        })
             
     pprint.pprint(EMPLOYEE_DATA) # DEBUGGING
     return jsonify({'message': 'Employee Added', 'status': 'ok'}), 200
@@ -107,19 +116,6 @@ def __gen_id() -> str:
 
         if id not in EMPLOYEE_DATA:
             return id
-
-
-def __get_employee(id: str) -> dict:
-    for employee in EMPLOYEE_DATA:
-        if employee['id'] == id:
-            return employee
-
-    return None
-
-
-def __predict(id: str) -> None:
-    employee: dict = __get_employee(id)
-    model_input: list = []
 
 
 if __name__ == '__main__':

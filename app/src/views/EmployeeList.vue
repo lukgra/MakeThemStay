@@ -26,13 +26,12 @@
                     <!-- Details row for the employee, conditionally rendered -->
                     <tr v-show="detailsVisible === employee.id" class="details-row">
                         <td colspan="4">
-                            <transition name="slide">
-                                <div class="details-content">
-                                    <p><strong>Position:</strong> {{ employee.position }}</p>
-                                    <p><strong>Department:</strong> {{ employee.department }}</p>
-                                    <p><strong>Hire Date:</strong> {{ employee.hireDate }}</p>
-                                </div>
-                            </transition>
+                            <p><strong>Features with the biggest impact:</strong> {{ employee.position }}</p>
+                            <ul>
+                                <li v-for="(feature, index) in employee.exp_features" :key="index">
+                                    {{ feature }}: <strong>{{ employee.features[feature] }}</strong>
+                                </li>
+                            </ul>
                         </td>
                     </tr>
                 </template>

@@ -1,10 +1,13 @@
 
+import numpy as np
 import pandas as pd
 
+from typing                 import Tuple
 from pathlib                import Path
 from joblib                 import load
 from sklearn.ensemble       import RandomForestClassifier
 from sklearn.preprocessing  import StandardScaler, OneHotEncoder
+from shap                   import TreeExplainer
 
 from config                 import COLUMNS, SCALE_COLUMNS, OH_ENC_COLUMNS, ORD_ENC_COLUMNS
 
@@ -16,19 +19,24 @@ class Model:
         self._model: RandomForestClassifier = load(dir_path.joinpath('model.joblib'))
         self._scaler: StandardScaler = load(dir_path.joinpath('scaler.joblib'))
         self._encoder: OneHotEncoder = load(dir_path.joinpath('encoder.joblib'))
+        self._explainer: TreeExplainer = TreeExplainer(self._model)
 
         self._data: pd.DataFrame = None
+        self._prediction: int = None
+        self._exp_features: list = None
 
 
-    def predict(self, X: dict) -> int:
+    def predict(self, X: dict) -> Tuple[int, list[str]]:
+        # --- Processing --- #
         self._process_data(X)
-        return int(
-            round(self._model.predict_proba(self._data)[0][1] * 100)
-        )
 
+        # --- Prediction --- #
+        self._run_model_prediction()
 
-    def explain(self) -> dict:
-        pass
+        # --- Explanation --- #
+        self._explain_prediction()
+
+        return self._prediction, self._exp_features
 
 
     def _process_data(self, X: dict) -> None:
@@ -50,31 +58,24 @@ class Model:
         self._data[ORD_ENC_COLUMNS] = self._data[ORD_ENC_COLUMNS].apply(lambda col: col.map({'No': 0, 'Yes': 1}))
 
 
-if __name__ == '__main__':
-    m = Model()
-    print(m.predict(
-        {
-            'Age': 12,
-            'Company Reputation': 'Good',
-            'Company Size': 'Large',
-            'Company Tenure': 1,
-            'Distance from Home': 10,
-            'Education Level': 'Bachelor’s Degree',
-            'Employee Recognition': 'Medium',
-            'Gender': 'Male',
-            'Innovation Opportunities': 'Yes',
-            'Job Level': 'Mid-level',
-            'Job Role': 'Technology',
-            'Job Satisfaction': 'Low',
-            'Leadership Opportunities': 'No',
-            'Marital Status': 'Divorced',
-            'Monthly Income': 4000,
-            'Number of Dependents': 1,
-            'Number of Promotions': 1,
-            'Overtime': 'Yes',
-            'Performance Rating': 'Average',
-            'Remote Work': 'No',
-            'Work-Life Balance': 'Below Average',
-            'Years at Company': 3
-        }
-    ))
+    def _run_model_prediction(self) -> int:
+        self._prediction = round(self._model.predict_proba(self._data)[0][1] * 100)
+        
+
+    def _explain_prediction(self) -> list:
+        shap_values: np.ndarray = self._explainer.shap_values(self._data)[..., 1] # Second column
+        shap_df: pd.DataFrame = pd.DataFrame({
+                "Feature": self._data.columns,
+                "Feature Value": self._data.values.flatten(),
+                "SHAP Value": shap_values.flatten()
+            }).sort_values(
+                by=['SHAP Value'],
+                ascending=False
+            ).reset_index(drop=True)
+        
+        # This crazy line removes records, that have one hot encoded columns with a value of 0
+        shap_df = shap_df[~((shap_df['Feature'].str.contains('_')) & (shap_df['Feature Value'] == 0))]
+
+        # TODO: fix the one hot feature that contains 1 (remove the _ sign and make the value different second element of the field)
+        
+        self._exp_features = list(shap_df.head(5)['Feature'])
