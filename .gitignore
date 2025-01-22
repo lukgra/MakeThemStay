@@ -1,7 +1,9 @@
 model/data/
 model/.ipynb_checkpoints/
+model/release
 venv/
 docs/
+srv/__pycache__/
 
 
 
@@ -12,6 +14,7 @@ app/node_modules
 
 
 # local env files
+app/.env
 app/.env.local
 app/.env.*.local
 
