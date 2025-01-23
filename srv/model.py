@@ -75,7 +75,8 @@ class Model:
         
         # This crazy line removes records, that have one hot encoded columns with a value of 0
         shap_df = shap_df[~((shap_df['Feature'].str.contains('_')) & (shap_df['Feature Value'] == 0))]
-
-        # TODO: fix the one hot feature that contains 1 (remove the _ sign and make the value different second element of the field)
+        
+        # And this intersting line Changes the value after One Hot Encoder added the underscore
+        shap_df[['Feature', 'Feature Value']] = shap_df['Feature'].str.split('_', n=1, expand=True).fillna({'name': shap_df['Feature'], 'value': shap_df['Feature Value']})
         
         self._exp_features = list(shap_df.head(5)['Feature'])

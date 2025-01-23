@@ -6,7 +6,7 @@
                 <tr>
                     <th>ID</th>
                     <th>Name</th>
-                    <th>Chance of Leaving</th>
+                    <th>Likelihood of Leaving</th>
                     <th>Actions</th>
                 </tr>
             </thead>

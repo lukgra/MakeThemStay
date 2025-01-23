@@ -128,7 +128,7 @@ export default {
             this.loading = true; // Animation
             let isValid = true; // Form validation
             let firstInvalidField = null;
-            // const invalidFields = [];
+            const invalidFields = [];
 
             // Check all fields inside the form
             this.formFields.forEach(field => {
@@ -145,16 +145,16 @@ export default {
                 }
             });
 
-            // if (!isValid) {
-            //   if (firstInvalidField) {
-            //     firstInvalidField.scrollIntoView({
-            //       behavior: 'smooth',
-            //       block: 'center',
-            //     });
-            //   }
-            //   this.loading = false; // Animation
-            //   return;
-            // }
+            if (!isValid) {
+              if (firstInvalidField) {
+                firstInvalidField.scrollIntoView({
+                  behavior: 'smooth',
+                  block: 'center',
+                });
+              }
+              this.loading = false; // Animation
+              return;
+            }
 
             // Proceed with form submission if everything is valid
             try {
