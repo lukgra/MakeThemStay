@@ -1,56 +1,20 @@
-from flask import Flask, request, jsonify
-from flask_cors import CORS
-from joblib import load
-import time
-import pprint
 import random
 
-from model import Model
+from flask          import Flask, request, jsonify
+from flask_cors     import CORS
+
+
+from model          import Model
+
 
 # --- Flask --- #
 app: Flask = Flask(__name__)
 CORS(app)
 
+
 # --- Model & Data --- #
 MODEL = Model()
-EMPLOYEE_DATA = [
-    {   
-        'id': '0001',
-        'leave_chance': 38,
-        'name': 'Tony PGE',
-        'features': {
-            'Age': 33,
-            'Company Reputation': 'Good',
-            'Company Size': 'Large',
-            'Company Tenure': 1,
-            'Distance from Home': 10,
-            'Education Level': 'Bachelor’s Degree',
-            'Employee Recognition': 'Medium',
-            'Gender': 'Male',
-            'Innovation Opportunities': 'Yes',
-            'Job Level': 'Mid-level',
-            'Job Role': 'Technology',
-            'Job Satisfaction': 'Low',
-            'Leadership Opportunities': 'No',
-            'Marital Status': 'Divorced',
-            'Monthly Income': 4000,
-            'Number of Dependents': 1,
-            'Number of Promotions': 1,
-            'Overtime': 'Yes',
-            'Performance Rating': 'Average',
-            'Remote Work': 'No',
-            'Work-Life Balance': 'Below Average',
-            'Years at Company': 3
-        },
-        'exp_features': [
-            'Remote Work',
-            'Years at Company',
-            'Company Tenure',
-            'Overtime',
-            'Number of Dependents'
-        ]
-    }
-]
+EMPLOYEE_DATA = []
 
 
 @app.route('/all-employees', methods=['GET'])
@@ -95,8 +59,7 @@ def add_employee():
             'leave_chance': prediction,
             'exp_features': exp_features
         })
-            
-    pprint.pprint(EMPLOYEE_DATA) # DEBUGGING
+
     return jsonify({'message': 'Employee Added', 'status': 'ok'}), 200
 
 

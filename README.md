@@ -1,2 +1,2 @@
 # Projekt SUML (MakeThemStay!)
-### Aplikacja do predykcji odejścia pracownika (Vue.js/Flask)
+### Aplikacja wspomagająca działy HR poprzez estymację prawdopodobieństwa odejścia pracownika
